@@ -5,7 +5,7 @@ import java.util.*;
 public class Main {
 
     public enum Personagens {
-        HOMER, BART, LISA
+        HOMER, BART, LISA, MARGE, MAGGIE, NELSON
     }
 
 
@@ -16,7 +16,7 @@ public class Main {
         example.put("idade", 13);
         example.put("altura", 158);
         example.put("peso", 40);
-        example.put("sexo", 0);
+        example.put("sexo", 1);
 
         DecisionTree decisionTree = new DecisionTree();
         decisionTree.fit(data, "personagem");

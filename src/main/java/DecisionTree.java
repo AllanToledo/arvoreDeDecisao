@@ -91,8 +91,10 @@ public class DecisionTree {
         }
 
         AbstractMap.SimpleEntry<String, Double> maxGain = new AbstractMap.SimpleEntry<>("", -1.0);
+        List<String> columns = new ArrayList<>(data.get(0).keySet().stream().toList());
+        Collections.shuffle(columns); //A cada execução do algoritmo alterna entre os atributos com mesmo ganho
 
-        for (var column : data.get(0).keySet()) {
+        for (var column : columns)  {
             double gain = gainClass(data, s, column);
             if (maxGain.getValue() < gain) {
                 maxGain = new AbstractMap.SimpleEntry<>(column, gain);
@@ -100,7 +102,7 @@ public class DecisionTree {
         }
 
         Map.Entry<Integer, Double> selectedAtribute = gainAtribute(data, s, maxGain.getKey())
-                .entrySet().stream().max((a, b) -> (int) (a.getValue() - b.getValue())).orElseThrow();
+                .entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow();
 
         node.threshold = selectedAtribute.getKey();
         node.key = maxGain.getKey();
@@ -134,7 +136,7 @@ public class DecisionTree {
         sb.append(identation).append(node.key).append(" >= ").append(node.threshold).append(": \n");
         sb.append(toString(node.isTrue, nextIdentation)).append("\n");
         sb.append(identation).append(node.key).append(" < ").append(node.threshold).append(": \n");
-        sb.append(toString(node.isFalse, nextIdentation)).append("\n");
+        sb.append(toString(node.isFalse, nextIdentation));
         return sb.toString();
     }
 
