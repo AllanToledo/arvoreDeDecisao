@@ -85,32 +85,39 @@ public class DecisionTree {
 
     private void fit(List<Map<String, Integer>> data, String s, DecisionNode node) {
         double entropyS = entropy(data, s);
+        //Se a entropia cair para valores muito baixo, ele não divide mais, se torna um nó de resultado
+        //ou se a profundidade for muito grande tbm
         if (abs(entropyS) <= 0.01 || node.deepth > 5) {
             node.resultado = data.get(0).get(s);
             return;
         }
 
         AbstractMap.SimpleEntry<String, Double> maxGain = new AbstractMap.SimpleEntry<>("", -1.0);
+
+        //Pega as colunas, ou seja o nome dos atributos
         List<String> columns = new ArrayList<>(data.get(0).keySet().stream().toList());
         Collections.shuffle(columns); //A cada execução do algoritmo alterna entre os atributos com mesmo ganho
 
         for (var column : columns)  {
             double gain = gainClass(data, s, column);
             if (maxGain.getValue() < gain) {
-                maxGain = new AbstractMap.SimpleEntry<>(column, gain);
+                maxGain = new AbstractMap.SimpleEntry<>(column, gain); //Salva o atributo com maior ganho
             }
         }
 
-        Map.Entry<Integer, Double> selectedAtribute = gainAtribute(data, s, maxGain.getKey())
+        //Obtem o valor do atributo que obtem o maior ganho
+        //<Valor, Ganho>
+        Map.Entry<Integer, Double> selectedValue = gainAtribute(data, s, maxGain.getKey())
                 .entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow();
 
-        node.threshold = selectedAtribute.getKey();
+        node.threshold = selectedValue.getKey();
         node.key = maxGain.getKey();
         node.isTrue = new DecisionNode();
         node.isFalse = new DecisionNode();
         node.isTrue.deepth = node.deepth + 1;
         node.isFalse.deepth = node.deepth + 1;
 
+        //Continua a definir o restante da arvore
         fit(data.stream().filter(row -> row.get(node.key) >= node.threshold).toList(), s, node.isTrue);
         fit(data.stream().filter(row -> row.get(node.key) < node.threshold).toList(), s, node.isFalse);
 

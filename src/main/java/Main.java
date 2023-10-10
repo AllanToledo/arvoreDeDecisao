@@ -19,6 +19,7 @@ public class Main {
         example.put("sexo", 1);
 
         DecisionTree decisionTree = new DecisionTree();
+        //o segundo parametro é o atributo que ele vai aprender a diferenciar
         decisionTree.fit(data, "personagem");
 
         Personagens personagem = Personagens.values()[decisionTree.eval(example)];
