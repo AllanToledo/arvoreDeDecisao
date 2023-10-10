@@ -5,16 +5,16 @@ import static java.lang.Math.log;
 
 public class DecisionTree {
     public static class DecisionNode {
-        public Integer resultado;
+        public Integer result;
         public DecisionNode isTrue;
         public DecisionNode isFalse;
         public Integer threshold;
-        public String key;
-        public Integer deepth = 0;
+        public String attribute;
+        public Integer depth = 0;
 
         public Integer eval(Map<String, Integer> example) {
-            if (resultado != null) return resultado;
-            if (example.get(this.key) >= threshold)
+            if (result != null) return result;
+            if (example.get(attribute) >= threshold)
                 return isTrue.eval(example);
             return isFalse.eval(example);
         }
@@ -87,8 +87,8 @@ public class DecisionTree {
         double entropyS = entropy(data, s);
         //Se a entropia cair para valores muito baixo, ele não divide mais, se torna um nó de resultado
         //ou se a profundidade for muito grande tbm
-        if (abs(entropyS) <= 0.01 || node.deepth > 5) {
-            node.resultado = data.get(0).get(s);
+        if (abs(entropyS) <= 0.01 || node.depth > 5) {
+            node.result = data.get(0).get(s);
             return;
         }
 
@@ -111,15 +111,15 @@ public class DecisionTree {
                 .entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow();
 
         node.threshold = selectedValue.getKey();
-        node.key = maxGain.getKey();
+        node.attribute = maxGain.getKey();
         node.isTrue = new DecisionNode();
         node.isFalse = new DecisionNode();
-        node.isTrue.deepth = node.deepth + 1;
-        node.isFalse.deepth = node.deepth + 1;
+        node.isTrue.depth = node.depth + 1;
+        node.isFalse.depth = node.depth + 1;
 
         //Continua a definir o restante da arvore
-        fit(data.stream().filter(row -> row.get(node.key) >= node.threshold).toList(), s, node.isTrue);
-        fit(data.stream().filter(row -> row.get(node.key) < node.threshold).toList(), s, node.isFalse);
+        fit(data.stream().filter(row -> row.get(node.attribute) >= node.threshold).toList(), s, node.isTrue);
+        fit(data.stream().filter(row -> row.get(node.attribute) < node.threshold).toList(), s, node.isFalse);
 
     }
 
@@ -135,14 +135,14 @@ public class DecisionTree {
 
     String toString(DecisionNode node, String identation) {
         StringBuilder sb = new StringBuilder();
-        if(node.resultado != null) {
-            sb.append(identation).append("classe ").append(node.resultado);
+        if(node.result != null) {
+            sb.append(identation).append("classe ").append(node.result);
             return sb.toString();
         }
         String nextIdentation = identation + "    ";
-        sb.append(identation).append(node.key).append(" >= ").append(node.threshold).append(": \n");
+        sb.append(identation).append(node.attribute).append(" >= ").append(node.threshold).append(": \n");
         sb.append(toString(node.isTrue, nextIdentation)).append("\n");
-        sb.append(identation).append(node.key).append(" < ").append(node.threshold).append(": \n");
+        sb.append(identation).append(node.attribute).append(" < ").append(node.threshold).append(": \n");
         sb.append(toString(node.isFalse, nextIdentation));
         return sb.toString();
     }
