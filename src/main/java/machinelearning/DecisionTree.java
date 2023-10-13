@@ -1,3 +1,5 @@
+package machinelearning;
+
 import java.util.*;
 
 import static java.lang.Math.abs;
@@ -8,11 +10,11 @@ public class DecisionTree {
         public Integer result;
         public DecisionNode isTrue;
         public DecisionNode isFalse;
-        public Integer threshold;
+        public Double threshold;
         public String attribute;
-        public Integer depth = 0;
+        public Double depth = 0.0;
 
-        public Integer eval(Map<String, Integer> example) {
+        public Integer eval(Map<String, Double> example) {
             if (result != null) return result;
             if (example.get(attribute) >= threshold)
                 return isTrue.eval(example);
@@ -23,30 +25,30 @@ public class DecisionTree {
 
     DecisionNode rootNode;
 
-    public double entropy(List<Map<String, Integer>> data, String _class) {
-        if (data.size() == 0) return 0;
-        Map<Integer, Double> fractions = new HashMap<>();
-        Double fraction = 1.0 / data.size();
+    public double entropy(List<Map<String, Double>> data, String _class) {
+        if (data.size() == 0.0) return 0.0;
+        Map<Double, Double> fractions = new HashMap<>();
+        Double fraction = 1.00 / data.size();
         for (var example : data) {
-            Integer value = example.get(_class);
-            fractions.put(value, fractions.getOrDefault(value, 0.0) + fraction);
+            Double value = example.get(_class);
+            fractions.put(value, fractions.getOrDefault(value, 0.00) + fraction);
         }
-        return -fractions.values().stream().reduce(0.0, (r, pi) -> r + pi * (log(pi) / log(2)));
+        return -fractions.values().stream().reduce(0.00, (r, pi) -> r + pi * (log(pi) / log(2.0)));
     }
 
-    public double gainClass(List<Map<String, Integer>> data, String s, String a) {
-        if(s.equals(a)) return 0;
-        Map<Integer, Integer> values = new HashMap<>();
+    public double gainClass(List<Map<String, Double>> data, String s, String a) {
+        if(s.equals(a)) return 0.0;
+        Map<Double, Double> values = new HashMap<>();
         for (var row : data) {
-            values.put(row.get(a), values.getOrDefault(row.get(a), 0) + 1);
+            values.put(row.get(a), values.getOrDefault(row.get(a), 0.0) + 1.0);
         }
         double entropyS = entropy(data, s);
         double gain = entropyS;
         for (var value : values.entrySet()) {
-            double sizeGreater = values.entrySet().stream().map(e -> (e.getKey() >= value.getKey() ? e.getValue() : 0))
-                    .reduce(0, Integer::sum);
-            double sizeLess = values.entrySet().stream().map(e -> (e.getKey() < value.getKey() ? e.getValue() : 0))
-                    .reduce(0, Integer::sum);
+            double sizeGreater = values.entrySet().stream().map(e -> (e.getKey() >= value.getKey() ? e.getValue() : 0.0))
+                    .reduce(0.0, Double::sum);
+            double sizeLess = values.entrySet().stream().map(e -> (e.getKey() < value.getKey() ? e.getValue() : 0.0))
+                    .reduce(0.0, Double::sum);
 
             var valuesGreater = data.stream().filter((row) -> row.get(a) >= value.getKey()).toList();
             var valuesLess = data.stream().filter((row) -> row.get(a) < value.getKey()).toList();
@@ -57,18 +59,18 @@ public class DecisionTree {
         return entropyS - gain;
     }
 
-    public Map<Integer, Double> gainAtribute(List<Map<String, Integer>> data, String s, String a) {
-        Map<Integer, Integer> values = new HashMap<>();
+    public Map<Double, Double> gainAtribute(List<Map<String, Double>> data, String s, String a) {
+        Map<Double, Double> values = new HashMap<>();
         for (var row : data) {
-            values.put(row.get(a), values.getOrDefault(row.get(a), 0) + 1);
+            values.put(row.get(a), values.getOrDefault(row.get(a), 0.0) + 1.0);
         }
         double entropyS = entropy(data, s);
-        Map<Integer, Double> gain = new HashMap<>();
+        Map<Double, Double> gain = new HashMap<>();
         for (var value : values.entrySet()) {
-            double sizeGreater = values.entrySet().stream().map(e -> (e.getKey() >= value.getKey() ? e.getValue() : 0))
-                    .reduce(0, Integer::sum);
-            double sizeLess = values.entrySet().stream().map(e -> (e.getKey() < value.getKey() ? e.getValue() : 0))
-                    .reduce(0, Integer::sum);
+            double sizeGreater = values.entrySet().stream().map(e -> (e.getKey() >= value.getKey() ? e.getValue() : 0.0))
+                    .reduce(0.0, Double::sum);
+            double sizeLess = values.entrySet().stream().map(e -> (e.getKey() < value.getKey() ? e.getValue() : 0.0))
+                    .reduce(0.0, Double::sum);
 
             var valuesGreater = data.stream().filter((row) -> row.get(a) >= value.getKey()).toList();
             var valuesLess = data.stream().filter((row) -> row.get(a) < value.getKey()).toList();
@@ -78,27 +80,28 @@ public class DecisionTree {
         return gain;
     }
 
-    public void fit(List<Map<String, Integer>> data, String s) {
+    public void fit(List<Map<String, Double>> data, String _class) {
         rootNode = new DecisionNode();
-        fit(data, s, rootNode);
+        fit(data, _class, rootNode);
     }
 
-    private void fit(List<Map<String, Integer>> data, String s, DecisionNode node) {
+    private void fit(List<Map<String, Double>> data, String s, DecisionNode node) {
         double entropyS = entropy(data, s);
         //Se a entropia cair para valores muito baixo, ele não divide mais, se torna um nó de resultado
         //ou se a profundidade for muito grande tbm
-        if (abs(entropyS) <= 0.01 || node.depth > 5) {
-            node.result = data.get(0).get(s);
+        if (abs(entropyS) <= 0.010 || node.depth > 5.0) {
+            node.result = data.get(0).get(s).intValue();
             return;
         }
 
-        AbstractMap.SimpleEntry<String, Double> maxGain = new AbstractMap.SimpleEntry<>("", -1.0);
+        AbstractMap.SimpleEntry<String, Double> maxGain = new AbstractMap.SimpleEntry<>("", -1.00);
 
         //Pega as colunas, ou seja o nome dos atributos
         List<String> columns = new ArrayList<>(data.get(0).keySet().stream().toList());
         Collections.shuffle(columns); //A cada execução do algoritmo alterna entre os atributos com mesmo ganho
 
         for (var column : columns)  {
+            if(column.equals(s)) continue;
             double gain = gainClass(data, s, column);
             if (maxGain.getValue() < gain) {
                 maxGain = new AbstractMap.SimpleEntry<>(column, gain); //Salva o atributo com maior ganho
@@ -107,15 +110,15 @@ public class DecisionTree {
 
         //Obtem o valor do atributo que obtem o maior ganho
         //<Valor, Ganho>
-        Map.Entry<Integer, Double> selectedValue = gainAtribute(data, s, maxGain.getKey())
+        Map.Entry<Double, Double> selectedValue = gainAtribute(data, s, maxGain.getKey())
                 .entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow();
 
         node.threshold = selectedValue.getKey();
         node.attribute = maxGain.getKey();
         node.isTrue = new DecisionNode();
         node.isFalse = new DecisionNode();
-        node.isTrue.depth = node.depth + 1;
-        node.isFalse.depth = node.depth + 1;
+        node.isTrue.depth = node.depth + 1.0;
+        node.isFalse.depth = node.depth + 1.0;
 
         //Continua a definir o restante da arvore
         fit(data.stream().filter(row -> row.get(node.attribute) >= node.threshold).toList(), s, node.isTrue);
@@ -123,7 +126,7 @@ public class DecisionTree {
 
     }
 
-    public Integer eval(Map<String, Integer> example) {
+    public Integer eval(Map<String, Double> example) {
         if (rootNode == null) return null;
         return rootNode.eval(example);
     }
