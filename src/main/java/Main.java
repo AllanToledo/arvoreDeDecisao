@@ -14,32 +14,35 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        //Rede Neural não é capaz de distinguir outros conjuntos de dados, pois não são linearmente separaveis
+        //Para isso, teriamos que usar um Multilayer Perceptron, mas isso complicaria bem mais o método de aprendizado
+        //pois teria que usar Backpropagation e matemática bem mais avançada, aqui ta bom
         List<Map<String, Double>> data = loadData("src\\main\\resources\\personagens-v1.csv");
         String attributeClass = "personagem";
 
-        Map<String, Double> example = new HashMap<>();
+        Map<String, Double> validation = new HashMap<>();
         //LISA
-        example.put("idade", 13.0);
-        example.put("altura", 158.0);
-        example.put("peso", 40.0);
-        example.put("sexo", 1.0);
+        validation.put("idade", 13.0);
+        validation.put("altura", 158.0);
+        validation.put("peso", 40.0);
+        validation.put("sexo", 1.0);
         //BART
-//        example.put("idade", 13.0);
-//        example.put("altura", 158.0);
-//        example.put("peso", 40.0);
-//        example.put("sexo", 0.0);
+//        validation.put("idade", 13.0);
+//        validation.put("altura", 158.0);
+//        validation.put("peso", 40.0);
+//        validation.put("sexo", 0.0);
         //HOMER
-//        example.put("idade", 46.0);
-//        example.put("altura", 168.0);
-//        example.put("peso", 162.0);
-//        example.put("sexo", 0.0);
+//        validation.put("idade", 46.0);
+//        validation.put("altura", 168.0);
+//        validation.put("peso", 162.0);
+//        validation.put("sexo", 0.0);
 
         Personagens personagem;
 
         DecisionTree decisionTree = new DecisionTree();
         //o segundo parametro é o atributo que ele vai aprender a classificar
         decisionTree.fit(data, attributeClass);
-        int decisionTreeResult = decisionTree.eval(example);
+        int decisionTreeResult = decisionTree.eval(validation);
         personagem = Personagens.values()[decisionTreeResult];
         System.out.printf("Arvore de decisão: %s\n", personagem);
 //        System.out.println(decisionTree);
@@ -50,8 +53,8 @@ public class Main {
 //        System.out.println(maxValues);
 //        System.out.println(maxValues.keySet());
         normalize(data, maxValues, attributeClass);
-        normalize(example, maxValues, attributeClass);
-//        System.out.println(example);
+        normalize(validation, maxValues, attributeClass);
+//        System.out.println(validation);
         //Criando a Rede Neural para classificação
         NeuralNetwork neuralNetwork = new NeuralNetwork();
         //Cria a matriz com o número de entradas (atributos) e a quantidade de neuronios para classificação
@@ -60,10 +63,10 @@ public class Main {
         neuralNetwork.learningRate = 0.1;
         neuralNetwork.fit(data, 100);
 
-        int neuralNetworkResult = neuralNetwork.eval(example);
+        int neuralNetworkResult = neuralNetwork.eval(validation);
 //        System.out.println(neuralNetwork);
-//        System.out.println(neuralNetwork.processInputs(example));
-//        System.out.println(neuralNetwork.applyActivactionFunction(neuralNetwork.processInputs(example)));
+//        System.out.println(neuralNetwork.processInputs(validation));
+//        System.out.println(neuralNetwork.applyActivactionFunction(neuralNetwork.processInputs(validation)));
         personagem = Personagens.values()[neuralNetworkResult];
         System.out.printf("Rede Neural: %s\n", personagem);
 //        System.out.println(neuralNetwork);
