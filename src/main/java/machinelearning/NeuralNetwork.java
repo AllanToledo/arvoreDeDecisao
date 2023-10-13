@@ -50,6 +50,7 @@ public class NeuralNetwork {
         // [w21, w22, ..., w2j]
         // [..., ..., ..., ...]
         // [wi1, wi2, ..., wij]
+
         this.weights = new SimpleMatrix(attributesSize, classesSize);
         weights.fill(1); //Valores iniciais
 
