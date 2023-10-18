@@ -29,17 +29,23 @@ public class Main {
         System.out.println("Estrutura da Arvore de Decisão");
         System.out.println(decisionTree);
 
+        //A rede neural obtem um melhor desempenho aplicando a normalização dos valores entre 0..1
+        boolean applicarNormalizacao = true;
         Map<String, Double> maxValues = getMaxValues(data);
-        normalize(data, maxValues, attributeClass);
+        if(applicarNormalizacao) normalize(data, maxValues, attributeClass);
 
         NeuralNetwork neuralNetwork = new NeuralNetwork();
         neuralNetwork.build(data, attributeClass);
         neuralNetwork.learningRate = 0.5;
         neuralNetwork.fit(data, 6);
-        System.out.println("Estrutura de Rede Neural");
+        System.out.println("\nOrdem das entradas: ");
+        for(var key: data.get(0).keySet())
+            if(!key.equals(attributeClass)) System.out.println(key);
+
+        System.out.println("\nEstrutura de Rede Neural");
         System.out.println(neuralNetwork);
 
-        System.out.println("Validação das classes");
+        System.out.println("\nValidação das classes");
         for(var e: validations){
             Personagens personagem;
             personagem = Personagens.values()[e.get("personagem").intValue()];
@@ -48,7 +54,7 @@ public class Main {
             int decisionTreeResult = decisionTree.eval(e);
             personagem = Personagens.values()[decisionTreeResult];
             System.out.printf("\t\t%s", personagem);
-            normalize(e, maxValues, attributeClass); //normalizando para a rede neura
+            if(applicarNormalizacao) normalize(e, maxValues, attributeClass); //normalizando para a rede neura
             int neuralNetworkResult = neuralNetwork.eval(e);
             personagem = Personagens.values()[neuralNetworkResult];
             System.out.printf("\t\t\t%s\n", personagem);
