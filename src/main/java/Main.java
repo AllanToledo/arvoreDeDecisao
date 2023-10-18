@@ -3,6 +3,7 @@ import machinelearning.NeuralNetwork;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.sql.SQLOutput;
 import java.util.*;
 
 public class Main {
@@ -20,57 +21,71 @@ public class Main {
         List<Map<String, Double>> data = loadData("src\\main\\resources\\personagens-v1.csv");
         String attributeClass = "personagem";
 
-        Map<String, Double> validation = new HashMap<>();
-        //LISA
-        validation.put("idade", 13.0);
-        validation.put("altura", 158.0);
-        validation.put("peso", 40.0);
-        validation.put("sexo", 1.0);
-        //BART
-//        validation.put("idade", 13.0);
-//        validation.put("altura", 158.0);
-//        validation.put("peso", 40.0);
-//        validation.put("sexo", 0.0);
-        //HOMER
-//        validation.put("idade", 46.0);
-//        validation.put("altura", 168.0);
-//        validation.put("peso", 162.0);
-//        validation.put("sexo", 0.0);
-
-        Personagens personagem;
+        List<Map<String, Double>> validations = loadValidationValues();
 
         DecisionTree decisionTree = new DecisionTree();
         //o segundo parametro é o atributo que ele vai aprender a classificar
         decisionTree.fit(data, attributeClass);
-        int decisionTreeResult = decisionTree.eval(validation);
-        personagem = Personagens.values()[decisionTreeResult];
-        System.out.printf("Arvore de decisão: %s\n", personagem);
-//        System.out.println(decisionTree);
+        System.out.println("Estrutura da Arvore de Decisão");
+        System.out.println(decisionTree);
 
-        //Rede neural funcionou melhor com os valores normalizados de 0 até 1
-        //Para normalizar o valor é divido pelo valor máximo na base de dados
         Map<String, Double> maxValues = getMaxValues(data);
-//        System.out.println(maxValues);
-//        System.out.println(maxValues.keySet());
         normalize(data, maxValues, attributeClass);
-        normalize(validation, maxValues, attributeClass);
-//        System.out.println(validation);
-        //Criando a Rede Neural para classificação
+
         NeuralNetwork neuralNetwork = new NeuralNetwork();
-        //Cria a matriz com o número de entradas (atributos) e a quantidade de neuronios para classificação
         neuralNetwork.build(data, attributeClass);
-//        System.out.println(neuralNetwork);
-        neuralNetwork.learningRate = 0.1;
-        neuralNetwork.fit(data, 100);
+        neuralNetwork.learningRate = 0.5;
+        neuralNetwork.fit(data, 6);
+        System.out.println("Estrutura de Rede Neural");
+        System.out.println(neuralNetwork);
 
-        int neuralNetworkResult = neuralNetwork.eval(validation);
-//        System.out.println(neuralNetwork);
-//        System.out.println(neuralNetwork.processInputs(validation));
-//        System.out.println(neuralNetwork.applyActivactionFunction(neuralNetwork.processInputs(validation)));
-        personagem = Personagens.values()[neuralNetworkResult];
-        System.out.printf("Rede Neural: %s\n", personagem);
-//        System.out.println(neuralNetwork);
+        System.out.println("Validação das classes");
+        for(var e: validations){
+            Personagens personagem;
+            personagem = Personagens.values()[e.get("personagem").intValue()];
+            System.out.printf("Esperado \tArvoreDecisao \tRedeNeural\n%s", personagem);
 
+            int decisionTreeResult = decisionTree.eval(e);
+            personagem = Personagens.values()[decisionTreeResult];
+            System.out.printf("\t\t%s", personagem);
+            normalize(e, maxValues, attributeClass); //normalizando para a rede neura
+            int neuralNetworkResult = neuralNetwork.eval(e);
+            personagem = Personagens.values()[neuralNetworkResult];
+            System.out.printf("\t\t\t%s\n", personagem);
+        }
+
+    }
+
+    private static List<Map<String, Double>> loadValidationValues() {
+        List<Map<String, Double>> validations;
+        validations = new ArrayList<>();
+        //LISA
+        HashMap<String, Double> validation = new HashMap<>();
+        validation.put("idade", 13.0);
+        validation.put("altura", 158.0);
+        validation.put("peso", 40.0);
+        validation.put("sexo", 1.0);
+        validation.put("personagem", 2.0);
+        validations.add(validation);
+
+        //BART
+        validation = new HashMap<>();
+        validation.put("idade", 13.0);
+        validation.put("altura", 158.0);
+        validation.put("peso", 40.0);
+        validation.put("sexo", 0.0);
+        validation.put("personagem", 1.0);
+        validations.add(validation);
+
+        //HOMER
+        validation = new HashMap<>();
+        validation.put("idade", 46.0);
+        validation.put("altura", 168.0);
+        validation.put("peso", 162.0);
+        validation.put("sexo", 0.0);
+        validation.put("personagem", 0.0);
+        validations.add(validation);
+        return validations;
     }
 
     private static Map<String, Double> getMaxValues(List<Map<String, Double>> data) {

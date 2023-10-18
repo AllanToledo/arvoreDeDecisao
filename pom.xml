@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.allantoledo</groupId>
-    <artifactId>TrabalhoIA</artifactId>
+    <artifactId>MachineLearning</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>

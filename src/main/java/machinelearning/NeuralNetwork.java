@@ -135,9 +135,9 @@ public class NeuralNetwork {
     public SimpleMatrix processInputs(Map<String, Double> e) {
         int i = 0;
         //Transfere os valores para os neuronios de entrada
-        for(Map.Entry<String, Double> entry: e.entrySet()){
+        for (Map.Entry<String, Double> entry : e.entrySet()) {
             //Evita colocar o atributo personagem como valor de entrada, causaria um erro
-            if(entry.getKey().equals(_class)) continue;
+            if (entry.getKey().equals(_class)) continue;
             inputs.set(0, i++, entry.getValue());
         }
         //Calcula os pesos já aplicando a somatória, pois é uma multiplicação de matrizes
@@ -151,6 +151,9 @@ public class NeuralNetwork {
             //Aplica a função de ativação (Sigmoid) para cada resultado veja:
             //https://www.deeplearningbook.com.br/funcao-de-ativacao/#:~:text=%C3%A9%20altamente%20desejada.-,Sigm%C3%B3ide,-Sigm%C3%B3ide%20%C3%A9%20uma
             processedInputs.set(0, i,  (1 / (1 + Math.exp(-x))));
+
+            //Função booleana de ativação
+//            processedInputs.set(0, i, x > 0? 1.0 : 0.0);
         }
         return processedInputs;
     }
@@ -158,8 +161,7 @@ public class NeuralNetwork {
     @Override
     public String toString() {
         //Função simples para imprimir os valores
-        return "INPUTS\n" + inputs + '\n' +
-                "WEIGHTS\n" + weights + '\n' +
+        return "WEIGHTS\n" + weights + '\n' +
                 "THRESHOLDS\n" + thresholds + '\n';
     }
 }
